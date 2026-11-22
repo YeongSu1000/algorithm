@@ -3,101 +3,79 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        test();
-    }
 
-    static void test() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
         StringTokenizer st = new StringTokenizer(br.readLine());
+
         int n = Integer.parseInt(st.nextToken());
         int m = Integer.parseInt(st.nextToken());
         int v = Integer.parseInt(st.nextToken());
 
-        list = new int[n][n];
+
+        ArrayList<ArrayList<Integer>> graph = new ArrayList<>();
+
+        for (int i = 0; i <= n; i++) {
+            graph.add(new ArrayList<>());
+        }
 
         for (int i = 0; i < m; i++) {
             st = new StringTokenizer(br.readLine());
-            int node1 = Integer.parseInt(st.nextToken()) - 1;
-            int node2 = Integer.parseInt(st.nextToken()) - 1;
-            list[node1][node2] = 1;
-            list[node2][node1] = 1;
+            int a = Integer.parseInt(st.nextToken());
+            int b = Integer.parseInt(st.nextToken());
+            graph.get(a).add(b);
+            graph.get(b).add(a);
         }
 
-        visited = new boolean[n];
+        for (int i = 1; i <= n; i++) {
+            graph.get(i).sort(Collections.reverseOrder());
+        }
 
-        // dfs 구성 코드
-        stack = new Stack<>();
-        // 1. 루트 노드 v
+        // DFS
+        boolean[] visited = new boolean[n + 1];
+        Stack<Integer> stack = new Stack<>();
         stack.push(v);
-        bw.write(v + " ");
-        // 2. v에 방문 했다.
-        visited[v - 1] = true;
-        // 3. 루트부터 탐색
-        while (!stack.isEmpty()) {
-            // 4. 스택의 마지막 = 인접 노드 탐색 할 노드
-            int node = stack.pop();
-            // 5. 인접 노드 찾는 코드
-            int visit = dfs(node);
-            if (visit > 0) {
-                bw.write(visit + " ");
+
+        while(!stack.isEmpty()){
+            int now = stack.pop();
+            if(visited[now]){
+                continue;
+            }
+            visited[now] = true;
+            bw.write(now + " ");
+            for(int next : graph.get(now)){
+                if(!visited[next]){
+                    stack.push(next);
+                }
             }
         }
-        bw.write("\n");
 
-        visited = new boolean[n];
-
-        // bfs 구성 코드
-        queue = new LinkedList<>();
-        // 1. 루트 노드 v
-        queue.add(v);
-        
-        // 2. v에 방문 했다
-        visited[v - 1] = true;
-        // 3. 루트부터 탐색
-        while (!queue.isEmpty()) {
-            // 4. 큐 첫번째 값 = 인접 노드 탐색
-            int node = queue.poll();
-            bw.write(node + " ");
-            // 5. 인접 노드 찾아
-            bfs(node);
-
+        bw.newLine();
+        // BFS
+        for (int i = 1; i <= n; i++) {
+            graph.get(i).sort(Comparator.naturalOrder());
         }
 
+        boolean[] visited2 = new boolean[n + 1];
+        Queue<Integer> queue = new LinkedList<>();
+        queue.offer(v);
 
+        while(!queue.isEmpty()){
+            int now = queue.poll();
+            if(visited2[now]){
+                continue;
+            }
+            visited2[now] = true;
+            bw.write(now + " ");
+            for(int next : graph.get(now)){
+                if(!visited2[next]){
+                    queue.offer(next);
+                }
+            }
+        }
+        bw.flush();
         bw.close();
-    }
 
-    static Queue<Integer> queue;
-
-    public static void bfs(int node) {
-        for (int i = 0; i < list.length; i++) {
-            if (list[node - 1][i] == 1 && !visited[i]) {
-                queue.add(i + 1);
-                visited[i] = true;
-            }
-        }
-    }
-
-    static Stack<Integer> stack;
-    static boolean[] visited;
-    static int[][] list;
-
-    public static int dfs(int node) {
-        //5. node 의 인접노드 찾기
-        for (int i = 0; i < list.length; i++) {
-            // 6. i가 인접 노드 일 경우
-            // 인접 노드는 i + 1 이다.
-            if (list[node - 1][i] == 1 && !visited[i]) {
-                // 스텍에 인접 노드 추가.
-                stack.push(node);
-                stack.push(i + 1);
-                visited[i] = true;
-                // 하고 바로 그거 인접노드 찾기
-                return i + 1;
-            }
-        }
-        return 0;
-    }
+    } // end
 }
